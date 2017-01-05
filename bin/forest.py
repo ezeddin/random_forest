@@ -20,7 +20,7 @@ class Forest(object):
         for i, v in enumerate(unique):
             if counts[i] > 0:
                 w = counts[i] / np.sum(counts)
-                gain -= w * self.entropy([labels[i] for row in dataset if row[feature] == v])
+                gain -= w * self.entropy([labels[j] for j in range(len(dataset)) if dataset[j,feature] == v])
         return gain
 
     def build_tree(self, dataset, labels):
@@ -39,4 +39,4 @@ X = datasets[1][:,1:-1]
 Y = datasets[1][:,-1]
 
 forest = Forest(10,10)
-print(forest.information_gain(X,Y,3))
+print(forest.information_gain(X,Y,2))
