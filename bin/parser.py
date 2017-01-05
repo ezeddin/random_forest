@@ -15,3 +15,5 @@ path_list = [ECOLI_PATH, GLASS_PATH, LIVER_PATH, LETTERS_PATH, SAT_IMAGES_PATH, 
 def parse_dataset(path_list):
     return [np.genfromtxt(data_path, delimiter=',', dtype=data_type) for data_path, data_type in path_list]
 
+def get_datasets():
+    return parse_dataset(path_list)
