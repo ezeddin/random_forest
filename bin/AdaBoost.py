@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import string
+from math import log
 
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -15,9 +17,9 @@ LIVER_PATH = ('../data/2.Liver/Xy.txt', np.float)
 LETTERS_PATH = ('../data/3.Letters/Xy.txt', np.float)
 SAT_IMAGES_PATH = ('../data/4.Sat Images/sat.all', np.float)
 WAVEFORM_PATH = ('../data/5.Waveform/waveform-+noise.data', np.float)
-IONOSPHERE_PATH = ('../data/6.Ionosphere/ionosphere.data.txt', None)
+IONOSPHERE_PATH = ('../data/6.Ionosphere/Xy.txt', np.float)
 DIABETES_PATH = ('../data/7.Diabetes/Xy.txt', np.float)
-SONER_PATH = ('../data/8.Sonar/sonar.all-data.txt', None)
+SONER_PATH = ('../data/8.Sonar/Xy.txt', np.float)
 BREAST_CANCER_PATH = ('../data/9.Breast Cancer/Xy.txt', np.float)
 path_list = [ECOLI_PATH, GLASS_PATH, LIVER_PATH, LETTERS_PATH, SAT_IMAGES_PATH, WAVEFORM_PATH, IONOSPHERE_PATH, DIABETES_PATH, SONER_PATH, BREAST_CANCER_PATH]
 
@@ -30,66 +32,92 @@ def get_datasets():
 datasets = get_datasets()
 
 
-# Select BREAST_CANCER dataset
-#dataset = dataset[9]
-#X = dataset[:,1:10]
-#y = dataset[:,10]
+#########################
+######## OPTIONS ########
+#########################
+
+NAME = 'SONAR'
+
+#########################
+#########################
 
 
-# Select DIABETES dataset
-Xy = datasets[7]
-X = Xy[:,0:8]
-y = Xy[:,8]
-
-# Select test data set randomly
-idx_train = set(range(768))
-idx_test = set(random.sample(range(768),77))
-idx_train.difference(idx_test)
-X_test = [ X[i,:] for i in idx_test]
-y_test = [ y[i] for i in idx_test]
-X_train = [ X[i,:] for i in idx_train]
-y_train = [ y[i] for i in idx_train]
-
-# Create and fit an AdaBoosted decision tree
-bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1),
-                         algorithm="SAMME",
-                         n_estimators=50)
-
-bdt.fit(X_train, y_train)
-
-plot_colors = "br"
-plot_step = 0.02
-class_names = "AB"
-
-plt.figure(figsize=(8, 5))
 
 
-# Plot the two-class decision scores
-twoclass_output = bdt.decision_function(X_test)
-plot_range = (twoclass_output.min(), twoclass_output.max())
-#plt.subplot(122)
-for i, n, c in zip(range(2), class_names, plot_colors):
-    plt.hist(twoclass_output[y_test == i],
-             bins=10,
-             range=plot_range,
-             facecolor=c,
-             label='Class %s' % n,
-             alpha=.5)
-x1, x2, y1, y2 = plt.axis()
-plt.axis((x1, x2, y1, y2 * 1.2))
-plt.legend(loc='upper right')
-plt.ylabel('Samples')
-plt.xlabel('Score')
-plt.title('Decision Scores')
+# Extract data
 
-plt.tight_layout()
-plt.subplots_adjust(wspace=0.35)
-#plt.show()
+if NAME == 'ECOLI':
+	Xy = datasets[0] 
+elif NAME == 'GLASS':
+	Xy = datasets[1] 
+elif NAME == 'LIVER':
+	Xy = datasets[2] 
+elif NAME == 'LETTERS':
+	Xy = datasets[3] 
 
-# Prediction error
+elif NAME == 'IONOSPHERE':
+	Xy = datasets[6] 
+elif NAME == 'DIABETES':
+	Xy = datasets[7] 
+elif NAME == 'SONAR':
+	Xy = datasets[8] 
+elif NAME =='BREAST_CANCER':
+	Xy = datasets[9] 
 
-out = (twoclass_output>0)*1
-#print(out)
-#print(abs(out-y))
-print(np.count_nonzero(out-y_test))
-print(21.0/77)
+X = Xy[:,0:-1]
+y = Xy[:,-1]
+N = len(y)
+
+DEPTH = 1 #int(log(0.9*N+1)/log(2))
+
+
+y = y - min(y)
+y = np.array([int(i) for i in y])
+
+counts = []
+K = 100
+print('############################')
+print('Progress:')
+for k in range(K):
+
+	# Select training and test data set randomly
+	idx_train = set(range(N))
+	idx_test = set(random.sample(range(N),int(0.1*N)))
+	idx_train.difference(idx_test)
+	X_test = [ X[i,:] for i in idx_test]
+	y_test = [ y[i] for i in idx_test]
+	X_train = [ X[i,:] for i in idx_train]
+	y_train = [ y[i] for i in idx_train]
+
+	# Create and fit an AdaBoosted decision tree
+	bdt = AdaBoostClassifier(DecisionTreeClassifier(max_depth=DEPTH),
+		                 algorithm="SAMME",
+		                 n_estimators=50)
+
+	bdt.fit(X_train, y_train)
+	
+
+	# Test classifier on test data
+	#y_out = bdt.decision_function(X_test)
+	y_out = bdt.predict(X_test)
+	
+	#error = bdt.score(X_test,y_test)
+	#print(error)
+
+	#if( y_out.shape[0] > 1 ):
+	#	y_out = np.argmax(y_out,axis=1)
+	#y_out = np.array([int(i) for i in y_out])
+
+
+	# Prediction error
+	
+	counts.append(np.count_nonzero(y_out-y_test))
+
+	print(repr(k+1)+'/'+repr(K))
+
+print('############################')
+print('Average abs. error: ' + repr(float(sum(counts))/K))
+print('Average rel. error: '+ repr(float(sum(counts))/K/int(0.1*N)))
+print('############################')
+print('Done!')
+
