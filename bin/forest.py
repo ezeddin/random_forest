@@ -1,11 +1,12 @@
 from parser import *
 import random
-from Tree import *
+# from Tree import *
 
 class Forest(object):
-    def __init__(self, n_trees, n_features, max_depth=1):
+    def __init__(self, n_trees, n_features, subset_ratio=0.5, max_depth=1):
         self.n_trees = n_trees
         self.n_features = n_features # n_features = max_depth ????
+        self.subset_ratio = subset_ratio
         self.trees = list()
         self.max_depth = max_depth # n_features = max_depth ????
 
@@ -26,13 +27,22 @@ class Forest(object):
                 w = counts[i] / np.sum(counts)
                 gain -= w * self.entropy([labels[j] for j in range(len(dataset)) if dataset[j,feature] == v])
         return gain
+    
+    def subset_dataset(self, dataset):
+        n_dataset_samples = dataset.shape[0]
+        n_subset_samples =  n_dataset_samples * self.subset_ratio
+        return np.random.randint(n_dataset_samples, size=n_subset_samples)
 
-    def build_tree(self, dataset, labels):
-        for l in self.n_trees:
-            d_tilde = self.dataset_split(dataset)
-            d_tilde_f = self.random_features(d_tilde)
-            for f in range(self.n_features):
-                pass
+    def build_tree(self, subset_idx, features, dataset, labels):
+        max_gain = [(f, self.information_gain(dataset[subset_idx,:], labels[subset_idx], f)) for f in features]
+        print(max(max_gain), max_gain)
+
+    def evaluate(self, dataset, labels):
+        trees = list()
+        for _ in range(self.n_trees):
+            subset_idx = self.subset_dataset(dataset)
+            features = np.random.choice(dataset.shape[1], self.n_features, replace=False)
+            trees.append(self.build_tree(subset_idx, features, dataset, labels))
 
     # X : complete dataset
     # y : labels
@@ -67,8 +77,9 @@ class Forest(object):
 
 
 datasets = get_datasets()
-X = datasets[1][:,1:-1]
+X = datasets[1][:,0:-1]
 Y = datasets[1][:,-1]
 
-forest = Forest(10,10)
-print(forest.information_gain(X,Y,2))
+forest = Forest(n_trees=1,n_features=3)
+forest.evaluate(X,Y)
+# print(forest.information_gain(X,Y,2))
