@@ -26,17 +26,28 @@ VERBOSE = 0
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 10
+K = 100
 
 # - DISTURB_OUTPUT
-DISTURB_OUTPUT = True
+DISTURB_OUTPUT = False
+# relative number of altered outputs
 noise_rate = .05
 
+# Tree depth
+# -1 : use int(log(M+1)/log(2)) from paper
+# else : use that number
+DEPTH = 1
+
+# ALGORITHM
+# AB : AdaBoost
+# RF : Random Forest
+ALGORITHM = "AB"
+
+
 
 #####################################################
 #####################################################
 #####################################################
-
 
 
 # Parsing data
@@ -73,17 +84,15 @@ for NAME in NAMES:
     elif NAME =='VEHICLE':
     	Xy = datasets[11]
 
+    # Disturb output
     if DISTURB_OUTPUT == True:
         Xy = disturb_output(Xy, noise_rate)
 
     X = Xy[:,0:-1]
     y = Xy[:,-1]
 
-    y = y - min(y)
+    y = y - min(y) # to have classes starting with 0
     y = np.array([int(i) for i in y])
-
-    # Number of estimators
-    N_ESTIMATORS = 50 # Defined in the paper
 
     # Number of inputs
     M = X.shape[1]
@@ -97,7 +106,8 @@ for NAME in NAMES:
         N_test = 3000
 
     # Tree depth
-    DEPTH = int(log(M+1)/log(2))y_out
+    if DEPTH < 0: # otherwise use defined depth
+        DEPTH = int(log(M+1)/log(2))
 
     print('########################################################')
     print('Dataset: \t\t\t' + NAME)
@@ -126,7 +136,21 @@ for NAME in NAMES:
         y_train = [ y[i] for i in idx_train]
 
 
-        y_out = AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS)
+
+
+        if ALGORITHM == "AB":
+
+            # Number of estimators
+            N_ESTIMATORS = 50 # Defined in the paper
+
+            # Run AdaBoost !!!!
+            y_out = AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS)
+
+
+        elif ALGORITHM == "RF":
+
+            # RUN RANDOM FOREST!!!
+            pass
 
 
 
