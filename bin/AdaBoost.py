@@ -17,6 +17,3 @@ def AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS):
 	y_out = bdt.predict(X_test)
 
 	return y_out
-
-
-
