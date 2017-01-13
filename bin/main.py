@@ -16,17 +16,17 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['BREAST_CANCER']
+NAMES = ['GLASS']
 
 # - VERBOSE
 # 0 : no additional output
 # 1 : some addional output
 # 2 : full output
-VERBOSE = 0
+VERBOSE = 2
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 100
+K = 1
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -43,8 +43,9 @@ NUMBER_TREES = 100
 
 # ALGORITHM
 # AB : AdaBoost
-# RF : Random Forest
-ALGORITHM = "RF"
+# RF : Random Forest-RI
+# RC : Random Forest-RC
+ALGORITHM = "RC"
 
 
 #####################################################
@@ -146,6 +147,12 @@ for NAME in NAMES:
             # RUN RANDOM FOREST!!!
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
             forest.build_trees(X_train,y_train)            
+            y_out = forest.evaluate(X_test)
+
+        elif ALGORITHM == 'RC':
+            # RUN RANDOM FOREST-RC
+            forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
+            forest.build_trees(X_train,y_train,True)            
             y_out = forest.evaluate(X_test)
 
         # Prediction error
