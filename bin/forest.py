@@ -1,6 +1,7 @@
 from parser import *
 import random
 from Tree import *
+from create_trainingset import *
 
 class Forest(object):
     def __init__(self, n_trees, n_features, subset_ratio=0.9, max_depth=2):
@@ -9,46 +10,58 @@ class Forest(object):
         self.subset_ratio = subset_ratio
         self.trees = list()
         self.max_depth = max_depth # n_features = max_depth ????
-    
+        self.error = -1
+
+
     def subset_dataset(self, dataset):
         n_dataset_samples = dataset.shape[0]
         n_subset_samples =  int(n_dataset_samples * self.subset_ratio)
         return np.random.randint(n_dataset_samples, size=n_subset_samples)
     
-    def predict(self, x):
-        predictions = [tree.predict(x) for tree in self.trees]
+    def predict(self, x,RC):
+        if RC == True:
+            for tree in self.trees:
+                tree.transform_data(x)
+                predictions = [tree.predict(x) for tree in self.trees]
+
+        else:
+            predictions = [tree.predict(x) for tree in self.trees]           
         # print("Predictions:", predictions)
         return max(set(predictions), key=predictions.count)
 
-    def build_trees(self, dataset, labels,RC):
-        if RC == True:
-            dataset = self.linear_combination_features(dataset)
+
+
+    def build_trees(self, X, y,N_test,RC):
+        self.error = 0
+        N = len(y)
         for _ in range(self.n_trees):
-            subset_idx = self.subset_dataset(dataset)
-            features = set(np.random.choice(dataset.shape[1]-1, self.n_features, replace=False))
             new_tree = Tree()
-            new_tree.split( dataset[subset_idx], labels[subset_idx], features, self.max_depth )
+            if RC == True:
+                new_tree.linear_combination_features(X)
+                X = new_tree.transform_data(X)
+
+            X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
+            features = set(np.random.choice(X.shape[1]-1, self.n_features, replace=False))
+            new_tree.split( X_train, y_train, features, self.max_depth )
             self.trees.append(new_tree)
+
+
+            self.error += new_tree.evaluate(X_test,y_test)/N
+
+        return self.error
+
         
 
-    def evaluate(self, test):
-        return [ self.predict(x) for x in test]
+    def evaluate(self, X, y,RC):
+        if RC == True:
+            return self.predict(X,y,RC)
 
-    def linear_combination_features(self,dataset):
-        n_combinations = 3
-        new_dataset = np.zeros(dataset.shape)
-        print(dataset[1:10,:])
-        shape_dataset = dataset.shape;
-        for col in range(shape_dataset[1]):
-            features = np.random.choice(shape_dataset[1], n_combinations, replace=False)
-            coefficients = np.random.uniform(-1,1,n_combinations)
-            print(features)
-            print(coefficients)
-            new_dataset[:,col] = np.dot(dataset[:,features],coefficients)  
+        return self.predict(X,y,RC)
 
-        #new_dataset[:,-1] = dataset[:,-1]
-        print(new_dataset[1:10,:])
-        return new_dataset
+
+        
+
+    
 
 
 # datasets = get_datasets()

@@ -8,6 +8,8 @@ class Tree(object):
         self.split_feature = None
         self.split_value = None
         self.node = None
+        self.coefficients = None
+        self.indices = None
 
 
     def __str__(self, level=0, side='• '):
@@ -58,6 +60,16 @@ class Tree(object):
             else:
                 return self.right.predict(x)
 
+    def evaluate(self,X,y):
+        error = 0
+        y_predictions = []
+        for x in X:
+            y_predictions.append(self.predict(x))
+        
+        return float(np.count_nonzero(y-y_predictions))/len(y)
+
+
+
     # Gini impurity
     def gini(self, branches, labels):
         gini = 0.0
@@ -66,3 +78,27 @@ class Tree(object):
             proportion = counts / float(sum(counts)) 
             gini += sum(proportion*(1-proportion))
         return gini
+
+    def transform_data(self,dataset):
+
+        new_dataset = np.zeros(dataset.shape)
+        #print(dataset.shape)
+        for col in range(dataset.shape[1]):
+            new_dataset[:,col] = np.dot(dataset[:,self.indices[col]],self.coefficients[col])  
+
+        return new_dataset
+
+
+    def linear_combination_features(self,dataset):
+        n_combinations = 3
+        self.coefficients = list()
+        self.indices = list() 
+        shape_dataset = dataset.shape;
+        for col in range(shape_dataset[1]):
+            features = np.random.choice(shape_dataset[1], n_combinations, replace=False)
+            coefficients = np.random.uniform(-1,1,n_combinations)
+            self.coefficients.append(coefficients)
+            self.indices.append(features)
+
+
+

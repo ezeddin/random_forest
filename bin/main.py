@@ -5,6 +5,8 @@ import string
 from math import log
 from forest import *
 from AdaBoost import AdaBoost
+from create_trainingset import *
+
 # from disturb_output import disturb_output
 
 import parser
@@ -16,7 +18,7 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['GLASS']
+NAMES = ['BREAST_CANCER']
 
 # - VERBOSE
 # 0 : no additional output
@@ -26,7 +28,7 @@ VERBOSE = 2
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 1
+K = 5
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -128,44 +130,36 @@ for NAME in NAMES:
         print('Progress:')
 
 
-    counts = []
+    errors = []
     for k in range(K):
-        # Select training and test data set randomly
-        idx_train = set(range(N))
-        idx_test = set(random.sample(range(N),N_test))
-        idx_train.difference_update(idx_test)
-        X_test = np.array([ X[i,:] for i in idx_test])
-        y_test = np.array([ y[i] for i in idx_test])
-        X_train = np.array([ X[i,:] for i in idx_train])
-        y_train = np.array([ y[i] for i in idx_train])
-
+        
         if ALGORITHM == "AB":
+            # Select training and test data set randomly
+            X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
             # Number of estimators
             N_ESTIMATORS = 50 # Defined in the paper
             # Run AdaBoost !!!!
             y_out = AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS)
+            error = float(np.count_nonzero(y_out-y_test))/N_test
 
         elif ALGORITHM == "RF":
             # RUN RANDOM FOREST!!!
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
-            forest.build_trees(X_train,y_train)            
-            y_out = forest.evaluate(X_test)
+            error = forest.build_trees(X,y,N_test,False)            
 
         elif ALGORITHM == 'RC':
             # RUN RANDOM FOREST-RC
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
-            forest.build_trees(X_train,y_train,True)            
-            y_out = forest.evaluate(X_test)
+            error = forest.build_trees(X,y,N_test,True)            
 
         # Prediction error
-        counts.append(np.count_nonzero(y_out-y_test))
+        errors.append(error)
         if VERBOSE >= 2:
             print(repr(k+1)+'/'+repr(K))
 
     if VERBOSE >= 1:
         print('------------------------------------------------------------')
-    print('Average abs. error: \t\t' + repr(float(sum(counts))/K))
-    print('Average rel. error: \t\t'+ repr( float(sum(counts))/K/N_test) )
+    print('Average rel. error: \t\t'+ repr( sum(errors)/K ))
     if VERBOSE >= 1:
         print('########################### '+ ALGORITHM +' #############################')
 
