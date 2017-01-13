@@ -16,17 +16,17 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['BREAST_CANCER']
+NAMES = ['GLASS']
 
 # - VERBOSE
 # 0 : no additional output
 # 1 : some addional output
 # 2 : full output
-VERBOSE = 0
+VERBOSE = 1
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 100
+K = 10
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -120,6 +120,8 @@ for NAME in NAMES:
         print('Number of training samples: \t' + repr(N-N_test))
         print('Number of testing samples: \t' + repr(N_test))
         print('Maximum tree depth: \t\t' + repr(DEPTH))
+        print('Number trees: \t\t' + repr(NUMBER_TREES))
+        print('K: \t\t' + repr(k))
     if VERBOSE >= 2:
         print('------------------------------------------------------------')
         print('Progress:')
