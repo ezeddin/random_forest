@@ -14,7 +14,7 @@ class Tree(object):
             if child != None:
                 ret += child.__str__(level+1, side)
         return ret
-
+        
     def __repr__(self):
         return '<tree node representation>'
 
@@ -22,14 +22,14 @@ class Tree(object):
     def split(self, dataset, labels, features, max_depth, depth=1, min_size=1):
         # Find a good split
         _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
-        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 1:
+        features.remove(self.split_feature)
+        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 0:
             self.last_node(labels)
         else:
-            features.remove(self.split_feature)
             self.left = Tree()
             self.right = Tree()
-            self.left.split(dataset[left], labels[left], features, max_depth, depth+1)
-            self.right.split(dataset[right], labels[right], features, max_depth, depth+1)
+            self.left.split(dataset[left], labels[left], set(features), max_depth, depth+1)
+            self.right.split(dataset[right], labels[right], set(features), max_depth, depth+1)
 
     def last_node(self, labels):
         labels = list(labels)
@@ -44,6 +44,8 @@ class Tree(object):
                 # branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
+        if len(gini_list) == 0:
+            pdb.set_trace()
         return max(gini_list, key=lambda x: x[0])
 
     def predict(self, x):
