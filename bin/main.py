@@ -121,6 +121,8 @@ for NAME in NAMES:
         print('Number of training samples: \t' + repr(N-N_test))
         print('Number of testing samples: \t' + repr(N_test))
         print('Maximum tree depth: \t\t' + repr(DEPTH))
+        print('Number trees: \t\t\t' + repr(NUMBER_TREES))
+        print('K: \t\t\t\t' + repr(K))
     if VERBOSE >= 2:
         print('------------------------------------------------------------')
         print('Progress:')
