@@ -4,7 +4,7 @@ import random
 import string
 from math import log
 from forest import *
-from AdaBoost import AdaBoost
+from AdaBoost import *
 # from disturb_output import disturb_output
 
 import parser
@@ -16,17 +16,20 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['GLASS']
+# NAMES = ['ECOLI', 'GLASS']
+NAMES = 'ALL'
 
 # - VERBOSE
 # 0 : no additional output
 # 1 : some addional output
 # 2 : full output
-VERBOSE = 1
+VERBOSE = 2
+
+
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 10
+K = 100
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -44,6 +47,7 @@ NUMBER_TREES = 100
 # ALGORITHM
 # AB : AdaBoost
 # RF : Random Forest
+# RFIB
 ALGORITHM = "RF"
 
 
@@ -149,6 +153,9 @@ for NAME in NAMES:
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
             forest.build_trees(X_train,y_train)            
             y_out = forest.evaluate(X_test)
+
+        elif ALGORITHM == 'RFIB':
+            y_out = ForestIB(X_train, y_train, X_test, DEPTH, NUMBER_TREES)
 
         # Prediction error
         counts.append(np.count_nonzero(y_out-y_test))
