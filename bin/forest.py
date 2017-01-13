@@ -6,12 +6,11 @@ from create_trainingset import *
 class Forest(object):
     def __init__(self, n_trees, n_features, subset_ratio=0.9, max_depth=2):
         self.n_trees = n_trees
-        self.n_features = n_features # n_features = max_depth ????
+        self.n_features = n_features
         self.subset_ratio = subset_ratio
         self.trees = list()
         self.max_depth = max_depth # n_features = max_depth ????
         self.error = -1
-
 
     def subset_dataset(self, dataset):
         n_dataset_samples = dataset.shape[0]

@@ -4,9 +4,8 @@ import random
 import string
 from math import log
 from forest import *
-from AdaBoost import AdaBoost
 from create_trainingset import *
-
+from AdaBoost import *
 # from disturb_output import disturb_output
 
 import parser
@@ -19,6 +18,7 @@ import parser
 # - NAMES
 # List of data sets or 'ALL' to select all
 NAMES = ['BREAST_CANCER']
+# NAMES = ['ECOLI', 'GLASS']
 
 # - VERBOSE
 # 0 : no additional output
@@ -47,12 +47,8 @@ NUMBER_TREES = 100
 # AB : AdaBoost
 # RF : Random Forest-RI
 # RC : Random Forest-RC
-ALGORITHM = "RC"
-
-
-#####################################################
-#####################################################
-#####################################################
+# RFIB : In built Random Forest-RI
+ALGORITHM = "RF"
 
 
 # Parsing data
@@ -152,6 +148,8 @@ for NAME in NAMES:
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
             error = forest.build_trees(X,y,N_test,True)            
 
+        elif ALGORITHM == 'RFIB':
+            y_out = ForestIB(X_train, y_train, X_test, DEPTH, NUMBER_TREES)
         # Prediction error
         errors.append(error)
         if VERBOSE >= 2:
