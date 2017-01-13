@@ -8,42 +8,30 @@ class Tree(object):
         self.split_value = None
         self.node = None
 
+    def __str__(self, level=0):
+        ret = "-"*level+repr(self.split_feature)+','+repr(self.split_value)+"\n"
+        for child in [self.left, self.right]:
+            if child != None:
+                ret += child.__str__(level+1)
+        return ret
+
+    def __repr__(self):
+        return '<tree node representation>'
+
     # Split and create sub trees
-    def split(self, dataset, labels, features, max_depth, min_size=1):
-        if max_depth >= 1:
-            # Find a good split
-            gini_value, split_feature, split_value, branches = self.get_split(dataset, labels, features)
+    def split(self, dataset, labels, features, max_depth, depth=1, min_size=1):
+        # Find a good split
+        _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
 
-            # If no senseful split was found
-            if gini_value == :
-                self.last_node(labels)
-            else:
-
-                left = branches[0]
-                right = branches[1]
-
-                features.remove(split_feature)
-                # Set sub trees
-                self.split_feature = split_feature
-                self.split_value = split_value
-                self.left = Tree()
-                self.right = Tree()
-
-                # Are branches large enough to be splitted again?
-                if sum(left) >= min_size:
-                    self.left.split(dataset[left], labels[left], features, max_depth-1)
-                else:
-                    self.left.last_node(labels[left])
-
-                if sum(right) >= min_size:
-                    self.right.split(dataset[right], labels[right], features, max_depth-1)
-                else:
-                    self.right.last_node(labels[right])
-        else:
+        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth:
             self.last_node(labels)
+        else:
+            self.left = Tree()
+            self.right = Tree()
+            self.left.split(dataset[left], labels[left], features, max_depth, depth+1)
+            self.right.split(dataset[right], labels[right], features, max_depth, depth+1)
 
     def last_node(self, labels):
-        pdb.set_trace()
         labels = list(labels)
         self.node = max(set(labels), key=labels.count)
 
@@ -55,22 +43,18 @@ class Tree(object):
                 branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
-        if len(gini_list) != 0:
-            return max(gini_list, key=lambda x: x[0])
-        else:
-            return None, None, None, None
+
+        return max(gini_list, key=lambda x: x[0])
+
 
     def predict(self, x):
-        if x[self.split_feature] < self.split_value:
-            if self.left == None:
-                return self.label
-            else:
-                self.left.predict(x)
+        if self.left == None or self.right == None:
+            return self.node
         else:
-            if self.right == None:
-                return self.label
+            if x[self.split_feature] < self.split_value:
+                return self.left.predict(x)
             else:
-                self.right.predict(x)
+                return self.right.predict(x)
 
     # Gini impurity
     def gini(self, branches, labels):

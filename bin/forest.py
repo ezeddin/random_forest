@@ -34,7 +34,8 @@ datasets = get_datasets()
 X = datasets[1][:,0:-1]
 Y = datasets[1][:,-1]
 
-forest = Forest(n_trees=1,n_features=3, max_depth=10)
+forest = Forest(n_trees=1,n_features=3, max_depth=3)
 trees = forest.evaluate(X,Y)
-print(trees[0].predict(X[0]), Y[0])
+print(trees[0])
+# print(trees[0].predict(X[107]), Y[107])
 # print(forest.information_gain(X,Y,2))
