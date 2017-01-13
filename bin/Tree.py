@@ -40,8 +40,8 @@ class Tree(object):
         for row in dataset:
             for feature in features:
                 value = row[feature]
-                # branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
-                branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
+                branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
+                # branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
         return max(gini_list, key=lambda x: x[0])

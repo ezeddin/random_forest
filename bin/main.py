@@ -16,7 +16,7 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['GLASS']
+NAMES = ['BREAST_CANCER']
 
 # - VERBOSE
 # 0 : no additional output
@@ -36,7 +36,10 @@ noise_rate = .05
 # Tree depth
 # -1 : use int(log(M+1)/log(2)) from paper
 # else : use that number
-DEPTH = 10
+DEPTH = -1
+
+# Number trees
+NUMBER_TREES = 100
 
 # ALGORITHM
 # AB : AdaBoost
@@ -141,13 +144,12 @@ for NAME in NAMES:
 
         elif ALGORITHM == "RF":
             # RUN RANDOM FOREST!!!
-            forest = Forest(n_trees=10,n_features=M-1, max_depth=DEPTH)
+            forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
             forest.build_trees(X_train,y_train)            
             y_out = forest.evaluate(X_test)
 
         # Prediction error
         counts.append(np.count_nonzero(y_out-y_test))
-
         if VERBOSE >= 2:
             print(repr(k+1)+'/'+repr(K))
 
