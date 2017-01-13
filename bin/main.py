@@ -36,12 +36,12 @@ noise_rate = .05
 # Tree depth
 # -1 : use int(log(M+1)/log(2)) from paper
 # else : use that number
-DEPTH = -1
+DEPTH = 10
 
 # ALGORITHM
 # AB : AdaBoost
 # RF : Random Forest
-ALGORITHM = "AB"
+ALGORITHM = "RF"
 
 
 #####################################################
@@ -108,23 +108,22 @@ for NAME in NAMES:
     if DEPTH < 0: # otherwise use defined depth
         DEPTH = int(log(M+1)/log(2))
 
-    print('########################################################')
+    print('########################### '+ ALGORITHM +' #############################')
     print('Dataset: \t\t\t' + NAME)
     if VERBOSE >= 1:
-        print('--------------------------------------------------------')
+        print('------------------------------------------------------------')
         print('Number of inputs: \t\t' + repr(M))
         print('Total number of samples: \t' + repr(N))
         print('Number of training samples: \t' + repr(N-N_test))
         print('Number of testing samples: \t' + repr(N_test))
         print('Maximum tree depth: \t\t' + repr(DEPTH))
     if VERBOSE >= 2:
-        print('--------------------------------------------------------')
+        print('------------------------------------------------------------')
         print('Progress:')
 
 
     counts = []
     for k in range(K):
-
         # Select training and test data set randomly
         idx_train = set(range(N))
         idx_test = set(random.sample(range(N),N_test))
@@ -134,19 +133,15 @@ for NAME in NAMES:
         X_train = np.array([ X[i,:] for i in idx_train])
         y_train = np.array([ y[i] for i in idx_train])
 
-
         if ALGORITHM == "AB":
             # Number of estimators
             N_ESTIMATORS = 50 # Defined in the paper
-
             # Run AdaBoost !!!!
             y_out = AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS)
 
-
         elif ALGORITHM == "RF":
-
             # RUN RANDOM FOREST!!!
-            forest = Forest(n_trees=10,n_features=int(np.log2(M) + 1), max_depth=DEPTH)
+            forest = Forest(n_trees=10,n_features=M-1, max_depth=DEPTH)
             forest.build_trees(X_train,y_train)            
             y_out = forest.evaluate(X_test)
 
@@ -157,10 +152,10 @@ for NAME in NAMES:
             print(repr(k+1)+'/'+repr(K))
 
     if VERBOSE >= 1:
-        print('--------------------------------------------------------')
+        print('------------------------------------------------------------')
     print('Average abs. error: \t\t' + repr(float(sum(counts))/K))
     print('Average rel. error: \t\t'+ repr( float(sum(counts))/K/N_test) )
     if VERBOSE >= 1:
-        print('########################################################')
+        print('########################### '+ ALGORITHM +' #############################')
 
 print('Done!')
