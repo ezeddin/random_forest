@@ -24,19 +24,10 @@ NAMES = 'ALL'
 # 1 : some addional output
 # 2 : full output
 VERBOSE = 2
-<<<<<<< HEAD
-
-
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
 K = 100
-=======
-
-# - K
-# Number of training sessions across the error is averaged (In paper K = 100)
-K = 1
->>>>>>> d1e3a234c1cf7b8edc6f9948d28b2f1f068dd338
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -53,20 +44,10 @@ NUMBER_TREES = 100
 
 # ALGORITHM
 # AB : AdaBoost
-<<<<<<< HEAD
-# RF : Random Forest
-# RFIB
-ALGORITHM = "RF"
-=======
 # RF : Random Forest-RI
 # RC : Random Forest-RC
-ALGORITHM = "RC"
->>>>>>> d1e3a234c1cf7b8edc6f9948d28b2f1f068dd338
-
-
-#####################################################
-#####################################################
-#####################################################
+# RFIB : In built Random Forest-RI
+ALGORITHM = "RF"
 
 
 # Parsing data
@@ -166,18 +147,14 @@ for NAME in NAMES:
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
             forest.build_trees(X_train,y_train)            
             y_out = forest.evaluate(X_test)
-
-<<<<<<< HEAD
-        elif ALGORITHM == 'RFIB':
-            y_out = ForestIB(X_train, y_train, X_test, DEPTH, NUMBER_TREES)
-=======
         elif ALGORITHM == 'RC':
             # RUN RANDOM FOREST-RC
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
             forest.build_trees(X_train,y_train,True)            
             y_out = forest.evaluate(X_test)
->>>>>>> d1e3a234c1cf7b8edc6f9948d28b2f1f068dd338
-
+            
+        elif ALGORITHM == 'RFIB':
+            y_out = ForestIB(X_train, y_train, X_test, DEPTH, NUMBER_TREES)
         # Prediction error
         counts.append(np.count_nonzero(y_out-y_test))
         if VERBOSE >= 2:
