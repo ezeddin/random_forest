@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import pdb
 class Tree(object):
     def __init__(self):
@@ -7,6 +8,7 @@ class Tree(object):
         self.split_feature = None
         self.split_value = None
         self.node = None
+
 
     def __str__(self, level=0, side='• '):
         ret = "--"*level+side+repr(self.split_feature)+' : '+ format(self.split_value, '.2f')+ "\n"
@@ -38,14 +40,13 @@ class Tree(object):
     def get_split(self, dataset, labels, features):
         gini_list = list()
         for row in dataset:
-            for feature in features:
+            for feature in features:                   
                 value = row[feature]
                 branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
                 # branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
-        if len(gini_list) == 0:
-            pdb.set_trace()
+
         return max(gini_list, key=lambda x: x[0])
 
     def predict(self, x):
