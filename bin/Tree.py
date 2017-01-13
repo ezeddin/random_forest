@@ -8,11 +8,11 @@ class Tree(object):
         self.split_value = None
         self.node = None
 
-    def __str__(self, level=0):
-        ret = "-"*level+repr(self.split_feature)+','+repr(self.split_value)+"\n"
-        for child in [self.left, self.right]:
+    def __str__(self, level=0, side='• '):
+        ret = "--"*level+side+repr(self.split_feature)+' : '+ format(self.split_value, '.2f')+ "\n"
+        for side, child in [('[L] ',self.left), ('[R] ',self.right)]:
             if child != None:
-                ret += child.__str__(level+1)
+                ret += child.__str__(level+1, side)
         return ret
 
     def __repr__(self):
@@ -22,10 +22,10 @@ class Tree(object):
     def split(self, dataset, labels, features, max_depth, depth=1, min_size=1):
         # Find a good split
         _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
-
-        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth:
+        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 1:
             self.last_node(labels)
         else:
+            features.remove(self.split_feature)
             self.left = Tree()
             self.right = Tree()
             self.left.split(dataset[left], labels[left], features, max_depth, depth+1)
@@ -43,9 +43,7 @@ class Tree(object):
                 branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
-
         return max(gini_list, key=lambda x: x[0])
-
 
     def predict(self, x):
         if self.left == None or self.right == None:
