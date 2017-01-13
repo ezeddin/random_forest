@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import random
 import string
 from math import log
-
+from forest import *
 from AdaBoost import AdaBoost
-from disturb_output import disturb_output
+# from disturb_output import disturb_output
 
 import parser
 
@@ -16,7 +16,7 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = 'ALL'
+NAMES = ['GLASS']
 
 # - VERBOSE
 # 0 : no additional output
@@ -36,13 +36,12 @@ noise_rate = .05
 # Tree depth
 # -1 : use int(log(M+1)/log(2)) from paper
 # else : use that number
-DEPTH = 1
+DEPTH = -1
 
 # ALGORITHM
 # AB : AdaBoost
 # RF : Random Forest
 ALGORITHM = "AB"
-
 
 
 #####################################################
@@ -130,16 +129,13 @@ for NAME in NAMES:
         idx_train = set(range(N))
         idx_test = set(random.sample(range(N),N_test))
         idx_train.difference_update(idx_test)
-        X_test = [ X[i,:] for i in idx_test]
-        y_test = [ y[i] for i in idx_test]
-        X_train = [ X[i,:] for i in idx_train]
-        y_train = [ y[i] for i in idx_train]
-
-
+        X_test = np.array([ X[i,:] for i in idx_test])
+        y_test = np.array([ y[i] for i in idx_test])
+        X_train = np.array([ X[i,:] for i in idx_train])
+        y_train = np.array([ y[i] for i in idx_train])
 
 
         if ALGORITHM == "AB":
-
             # Number of estimators
             N_ESTIMATORS = 50 # Defined in the paper
 
@@ -150,9 +146,9 @@ for NAME in NAMES:
         elif ALGORITHM == "RF":
 
             # RUN RANDOM FOREST!!!
-            pass
-
-
+            forest = Forest(n_trees=10,n_features=int(np.log2(M) + 1), max_depth=DEPTH)
+            forest.build_trees(X_train,y_train)            
+            y_out = forest.evaluate(X_test)
 
         # Prediction error
         counts.append(np.count_nonzero(y_out-y_test))

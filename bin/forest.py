@@ -17,7 +17,7 @@ class Forest(object):
     
     def predict(self, x):
         predictions = [tree.predict(x) for tree in self.trees]
-        print("Predictions:", predictions)
+        # print("Predictions:", predictions)
         return max(set(predictions), key=predictions.count)
 
     def build_trees(self, dataset, labels):
@@ -28,12 +28,16 @@ class Forest(object):
             new_tree.split( dataset[subset_idx], labels[subset_idx], features, self.max_depth )
             self.trees.append(new_tree)
     
-datasets = get_datasets()
-X = datasets[1][:,0:-1]
-Y = datasets[1][:,-1]
+    def evaluate(self, test):
+        return [ self.predict(x) for x in test]
 
-forest = Forest(n_trees=10,n_features=3, max_depth=3)
-forest.build_trees(X,Y)
-print("Tree 0:\n",forest.trees[0])
-print("Predicted:", forest.predict(X[107]), "Actual:", Y[107])
-# print(forest.information_gain(X,Y,2))
+# datasets = get_datasets()
+# X = datasets[1][:,0:-1]
+# Y = datasets[1][:,-1]
+# n_features = int(np.log2(len(X[0])) + 1)
+# print(n_features)
+# forest = Forest(n_trees=10,n_features=n_features, max_depth=10)
+# forest.build_trees(X,Y)
+# print("Tree 0:\n",forest.trees[0])
+# print("Predicted:", forest.predict(X[107]), "Actual:", Y[107])
+# # print(forest.information_gain(X,Y,2))
