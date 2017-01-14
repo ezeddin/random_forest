@@ -22,7 +22,6 @@ class Forest(object):
             for tree in self.trees:
                 tree.transform_data(x)
                 predictions = [tree.predict(x) for tree in self.trees]
-
         else:
             predictions = [tree.predict(x) for tree in self.trees]           
         # print("Predictions:", predictions)
@@ -30,7 +29,7 @@ class Forest(object):
 
 
 
-    def build_trees(self, X, y,N_test,RC):
+    def build_trees(self, X, y, N_test,RC):
         self.error = 0
         N = len(y)
         for _ in range(self.n_trees):
@@ -43,19 +42,9 @@ class Forest(object):
             features = set(np.random.choice(X.shape[1]-1, self.n_features, replace=False))
             new_tree.split( X_train, y_train, features, self.max_depth )
             self.trees.append(new_tree)
-
-
-            self.error += new_tree.evaluate(X_test,y_test)/N
+            self.error += new_tree.evaluate(X_test,y_test)/self.n_trees
 
         return self.error
-
-        
-
-    def evaluate(self, X, y,RC):
-        if RC == True:
-            return self.predict(X,y,RC)
-
-        return self.predict(X,y,RC)
 
 
         
