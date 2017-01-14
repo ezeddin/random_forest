@@ -18,7 +18,7 @@ import parser
 # - NAMES
 # List of data sets or 'ALL' to select all
 #NAMES = ['ECOLI','GLASS','LIVER','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
-NAMES = ['ECOLI']
+NAMES = ['GLASS']
 
 # - VERBOSE
 # 0 : no additional output
@@ -28,7 +28,7 @@ VERBOSE = 2
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 5
+K = 10
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -127,41 +127,40 @@ for NAME in NAMES:
 
 
     counts = []
+    F = [1,int(log(M+1)/log(2))] 
     for k in range(K):
         X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
+        error = [] 
+        for f in F:
+            if ALGORITHM == "AB":
+                # Select training and test data set randomly
+                # Number of estimators
+                N_ESTIMATORS = 50 # Defined in the paper
+                # Run AdaBoost !!!!
+                y_out = AdaBoost(X_train, y_train, X_test, f, N_ESTIMATORS)
+    #            error = float(np.count_nonzero(y_out-y_test))/N_test
 
-        if ALGORITHM == "AB":
-            # Select training and test data set randomly
-            # Number of estimators
-            N_ESTIMATORS = 50 # Defined in the paper
-            # Run AdaBoost !!!!
-            y_out = AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS)
-#            error = float(np.count_nonzero(y_out-y_test))/N_test
+            elif ALGORITHM == "RF":
+                # RUN RANDOM FOREST!!!
+                forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
+                forest.build_trees(X_train,y_train,False)            
+                y_out = forest.evaluate(X_test)
+                
+            elif ALGORITHM == 'RC':
+                # RUN RANDOM FOREST-RC
+                forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
+                forest.build_trees(X_train,y_train,True)            
+                y_out = forest.evaluate(X_test)
+                #error = forest.build_trees(X,y,N_test,True)            
 
-        elif ALGORITHM == "RF":
-            # RUN RANDOM FOREST!!!
-            forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
-            forest.build_trees(X_train,y_train,False)            
-            y_out = forest.evaluate(X_test)
-            #print(y_out)
-            #error = forest.build_trees(X,y,N_test,False)            
-
-        elif ALGORITHM == 'RC':
-            # RUN RANDOM FOREST-RC
-            forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
-            forest.build_trees(X_train,y_train,True)            
-            y_out = forest.evaluate(X_test)
-
-            #error = forest.build_trees(X,y,N_test,True)            
-
-        elif ALGORITHM == 'RFIB':
-            y_out = ForestIB(X_train, y_train, X_test, DEPTH, NUMBER_TREES)
-        
-        # Prediction error
-        counts.append(np.count_nonzero(y_out-y_test)/N_test)
-        #print(y_out-y_test)
-        #print((np.count_nonzero(y_out-y_test)))
-        #errors.append(error)
+            elif ALGORITHM == 'RFIB':
+                y_out = ForestIB(X_train, y_train, X_test, f, NUMBER_TREES)
+            
+            # Prediction error
+            error.append(np.count_nonzero(y_out-y_test)/N_test)   
+        counts.append(min(error))
+        #print(error)
+        #print(min(error))
         if VERBOSE >= 2:
             print(repr(k+1)+'/'+repr(K))
 

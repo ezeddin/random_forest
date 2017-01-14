@@ -4,7 +4,7 @@ from Tree import *
 from create_trainingset import *
 
 class Forest(object):
-    def __init__(self, n_trees, n_features, subset_ratio=0.6, max_depth=2):
+    def __init__(self, n_trees, n_features, subset_ratio=0.66, max_depth=2):
         self.n_trees = n_trees
         self.n_features = n_features
         self.subset_ratio = subset_ratio
@@ -20,16 +20,19 @@ class Forest(object):
     def predict(self, x):
         #print(x)
         predictions = [tree.predict(x) for tree in self.trees]
-        #print("Predictions:", max(set(predictions), key=predictions.count))
+        #print("Predictions:",predictions)
+        #print(max(set(predictions), key=predictions.count))
         return max(set(predictions), key=predictions.count)
 
     def build_trees(self, dataset, labels,RC):
-        if RC == True:
-            dataset = self.linear_combination_features(dataset)
+        
         for _ in range(self.n_trees):
-            subset_idx = self.subset_dataset(dataset)
-            features = set(np.random.choice(dataset.shape[1]-1, self.n_features, replace=False))
             new_tree = Tree()
+            if RC == True:
+                new_tree.linear_combination_features(dataset)
+                dataset = new_tree.transform_data(dataset)
+            subset_idx = self.subset_dataset(dataset)
+            features = set(np.random.choice(dataset.shape[1], self.n_features, replace=False))
             new_tree.split( dataset[subset_idx], labels[subset_idx], features, self.max_depth )
             self.trees.append(new_tree)
         

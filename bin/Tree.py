@@ -44,18 +44,17 @@ class Tree(object):
         for row in dataset:
             for feature in features:                   
                 value = row[feature]
-                branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
-                # branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
+                #branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
+                branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
-
         return max(gini_list, key=lambda x: x[0])
 
     def predict(self, x):
         if self.left == None or self.right == None:
             return self.node
         else:
-            if x[self.split_feature] < self.split_value:
+            if x[self.split_feature] != self.split_value:
                 return self.left.predict(x)
             else:
                 return self.right.predict(x)
@@ -93,7 +92,7 @@ class Tree(object):
         n_combinations = 3
         self.coefficients = list()
         self.indices = list() 
-        shape_dataset = dataset.shape;
+        shape_dataset = dataset.shape
         for col in range(shape_dataset[1]):
             features = np.random.choice(shape_dataset[1], n_combinations, replace=False)
             coefficients = np.random.uniform(-1,1,n_combinations)
