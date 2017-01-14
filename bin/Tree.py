@@ -59,17 +59,17 @@ class Tree(object):
                 return self.left.predict(x)
             else:
                 return self.right.predict(x)
+                
 
+                """ 
     def evaluate(self,X,y):
         error = 0
         y_predictions = []
         for x in X:
             y_predictions.append(self.predict(x))
         
-        return float(np.count_nonzero(y-y_predictions))/len(y)
-
-
-
+        return y_predictions#float(np.count_nonzero(y-y_predictions))/len(y)
+"""
     # Gini impurity
     def gini(self, branches, labels):
         gini = 0.0

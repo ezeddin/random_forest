@@ -17,8 +17,8 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['BREAST_CANCER']
-# NAMES = ['ECOLI', 'GLASS']
+#NAMES = ['ECOLI','GLASS','LIVER','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+NAMES = ['ECOLI']
 
 # - VERBOSE
 # 0 : no additional output
@@ -126,39 +126,49 @@ for NAME in NAMES:
         print('Progress:')
 
 
-    errors = []
+    counts = []
     for k in range(K):
-        
+        X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
+
         if ALGORITHM == "AB":
             # Select training and test data set randomly
-            X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
             # Number of estimators
             N_ESTIMATORS = 50 # Defined in the paper
             # Run AdaBoost !!!!
             y_out = AdaBoost(X_train, y_train, X_test, DEPTH, N_ESTIMATORS)
-            error = float(np.count_nonzero(y_out-y_test))/N_test
+#            error = float(np.count_nonzero(y_out-y_test))/N_test
 
         elif ALGORITHM == "RF":
             # RUN RANDOM FOREST!!!
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
-            error = forest.build_trees(X,y,N_test,False)            
+            forest.build_trees(X_train,y_train,False)            
+            y_out = forest.evaluate(X_test)
+            #print(y_out)
+            #error = forest.build_trees(X,y,N_test,False)            
 
         elif ALGORITHM == 'RC':
             # RUN RANDOM FOREST-RC
             forest = Forest(n_trees=NUMBER_TREES,n_features=DEPTH, max_depth=DEPTH)
-            error = forest.build_trees(X,y,N_test,True)            
+            forest.build_trees(X_train,y_train,True)            
+            y_out = forest.evaluate(X_test)
+
+            #error = forest.build_trees(X,y,N_test,True)            
 
         elif ALGORITHM == 'RFIB':
             y_out = ForestIB(X_train, y_train, X_test, DEPTH, NUMBER_TREES)
+        
         # Prediction error
-        errors.append(error)
+        counts.append(np.count_nonzero(y_out-y_test)/N_test)
+        #print(y_out-y_test)
+        #print((np.count_nonzero(y_out-y_test)))
+        #errors.append(error)
         if VERBOSE >= 2:
             print(repr(k+1)+'/'+repr(K))
 
     if VERBOSE >= 1:
         print('------------------------------------------------------------')
-    print('Average rel. error: \t\t'+ repr( sum(errors)/K ))
+    print('Average abs. error: \t\t' + repr(float(sum(counts))/K))
+    #print('Average rel. error: \t\t'+ repr( float(sum(counts))/K/N_test) )
     if VERBOSE >= 1:
         print('########################### '+ ALGORITHM +' #############################')
-
 print('Done!')
