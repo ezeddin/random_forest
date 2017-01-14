@@ -1,7 +1,10 @@
 import numpy as np
 import random
 import pdb
+
+eps = 0.5
 class Tree(object):
+    
     def __init__(self):
         self.left = None
         self.right = None
@@ -21,12 +24,15 @@ class Tree(object):
         
     def __repr__(self):
         return '<tree node representation>'
+    
+    def is_int(self, x):
+        return (x-float(int(x))) == 0
 
     # Split and create sub trees
     def split(self, dataset, labels, features, max_depth, depth=1, min_size=1):
         # Find a good split
         _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
-        features.remove(self.split_feature)
+        # features.remove(self.split_feature)
         if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 0:
             self.last_node(labels)
         else:
@@ -45,7 +51,11 @@ class Tree(object):
             for feature in features:                   
                 value = row[feature]
                 #branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
-                branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
+                # branches = (dataset[:,feature] != value, dataset[:,feature] == value)                 
+                if self.is_int(value):
+                    branches = (dataset[:,feature] != value, dataset[:,feature] == value)
+                else:
+                    branches = (((dataset[:,feature] > value*(1+eps)) & (dataset[:,feature] < value*(1-eps))), ((dataset[:,feature] <= value*(1+eps)) & (dataset[:,feature] >= value*(1-eps))))
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
         return max(gini_list, key=lambda x: x[0])
@@ -54,10 +64,16 @@ class Tree(object):
         if self.left == None or self.right == None:
             return self.node
         else:
-            if x[self.split_feature] != self.split_value:
-                return self.left.predict(x)
+            if self.is_int(self.split_value):
+                if x[self.split_feature] != self.split_value:
+                    return self.left.predict(x)
+                else:
+                    return self.right.predict(x)
             else:
-                return self.right.predict(x)
+                if x[self.split_feature] > self.split_value*(1+eps) and x[self.split_feature] < self.split_value*(1-eps):
+                    return self.left.predict(x)
+                else:
+                    return self.right.predict(x)
                 
 
                 """ 
@@ -86,7 +102,6 @@ class Tree(object):
             new_dataset[:,col] = np.dot(dataset[:,self.indices[col]],self.coefficients[col])  
 
         return new_dataset
-
 
     def linear_combination_features(self,dataset):
         n_combinations = 3
