@@ -18,7 +18,7 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+NAMES = ['LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
 #NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
 
 # - VERBOSE
@@ -42,7 +42,7 @@ noise_rate = .05
 DEPTH = -1
 
 # Number trees
-NUMBER_TREES = 10
+NUMBER_TREES = 50
 
 # ALGORITHM
 # AB : AdaBoost
@@ -51,14 +51,14 @@ NUMBER_TREES = 10
 # RC : Random Forest-RC
 # RFIB : In built Random Forest-RI
 # RFDT
-ALGORITHM = "RF"
+ALGORITHM = "RC"
 
 
 # Parsing data
 datasets = parser.get_datasets()
 
 if NAMES == 'ALL':
-    NAMES = ['ECOLI','GLASS','LIVER','LETTERS','SAT_IMAGES','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+    NAMES = ['GLASS','LETTERS','SAT_IMAGES','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
 
 for NAME in NAMES:
 # Extract data
@@ -130,7 +130,7 @@ for NAME in NAMES:
 
 
     counts = []
-    F = [1,int(log(M+1)/log(2))] 
+    F = [2,8]#[1,int(log(M+1)/log(2))] 
     for k in range(K):
         X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
         #print(y_train)
@@ -159,7 +159,7 @@ for NAME in NAMES:
             elif ALGORITHM == 'RC':
                 # RUN RANDOM FOREST-RC
                 forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
-                forest.build_trees(X_train,y_train,True)            
+                forest.build_trees(X_train,y_train,RC=True,tree2=True)            
                 y_out = forest.evaluate(X_test)
                 #error = forest.build_trees(X,y,N_test,True)            
 

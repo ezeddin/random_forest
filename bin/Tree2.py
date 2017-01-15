@@ -41,6 +41,7 @@ class Tree(object):
                     self.childs[value] = Tree()
                     self.childs[value].split(dataset[dataset[:,self.split_feature]==value], labels[dataset[:,self.split_feature]==value], set(features), max_depth, depth+1)
 
+
     def last_node(self, labels):
         labels = list(labels)
         self.node = max(set(labels), key=labels.count)
@@ -68,22 +69,25 @@ class Tree(object):
         return gini
 
     def transform_data(self,dataset):
-        new_dataset = np.zeros(dataset.shape)
-        #print(dataset.shape)
-        for col in range(dataset.shape[1]):
-            new_dataset[:,col] = np.dot(dataset[:,self.indices[col]],self.coefficients[col])  
+        new_dataset = np.zeros((dataset.shape[0],np.shape(self.indices)[0]))
+       # print(dataset[0,self.indices[0]])
+        for row in range(dataset.shape[0]):
+            for f in range(np.shape(self.indices)[0]):
+                new_dataset[row,f] = sum(dataset[row,self.indices[f]] * self.coefficients[f])
+       # print(new_dataset)
         return new_dataset
 
-    def linear_combination_features(self,dataset):
-        n_combinations = 3
+    def linear_combination_features(self,dataset,F):
+        L = 3
         self.coefficients = list()
         self.indices = list() 
         shape_dataset = dataset.shape
-        for col in range(shape_dataset[1]):
-            features = np.random.choice(shape_dataset[1], n_combinations, replace=False)
-            coefficients = np.random.uniform(-1,1,n_combinations)
+        for feature in range(F):
+            features = np.random.choice(shape_dataset[1], L, replace=False)
+            coefficients = np.random.uniform(-1,1,L)
             self.coefficients.append(coefficients)
             self.indices.append(features)
 
+        return self.indices
 
 
