@@ -28,6 +28,11 @@ class Tree(object):
         _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
         features.remove(self.split_feature)
         if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 0:
+            #print('last labels',labels)
+            #print('left', sum(left))
+            #print('right', sum(right))
+            #print('depth', depth, max_depth)
+            #print('feature', features)
             self.last_node(labels)
         else:
             self.left = Tree()
@@ -37,6 +42,8 @@ class Tree(object):
 
     def last_node(self, labels):
         labels = list(labels)
+        #print('lables', labels)
+        #print('max labels', max(set(labels), key=labels.count))
         self.node = max(set(labels), key=labels.count)
 
     def get_split(self, dataset, labels, features):
@@ -44,17 +51,18 @@ class Tree(object):
         for row in dataset:
             for feature in features:                   
                 value = row[feature]
-                #branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
-                branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
+                branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
+                #branches = (dataset[:,feature] != value, dataset[:,feature] == value) 
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
         return max(gini_list, key=lambda x: x[0])
 
     def predict(self, x):
         if self.left == None or self.right == None:
+            #print(self.node)
             return self.node
         else:
-            if x[self.split_feature] != self.split_value:
+            if x[self.split_feature] <  self.split_value:
                 return self.left.predict(x)
             else:
                 return self.right.predict(x)
@@ -79,7 +87,6 @@ class Tree(object):
         return gini
 
     def transform_data(self,dataset):
-
         new_dataset = np.zeros(dataset.shape)
         #print(dataset.shape)
         for col in range(dataset.shape[1]):

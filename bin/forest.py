@@ -18,10 +18,8 @@ class Forest(object):
         return np.random.randint(n_dataset_samples, size=n_subset_samples)
 
     def predict(self, x):
-        #print(x)
         predictions = [tree.predict(x) for tree in self.trees]
-        #print("Predictions:",predictions)
-        #print(max(set(predictions), key=predictions.count))
+        #print(predictions)
         return max(set(predictions), key=predictions.count)
 
     def build_trees(self, dataset, labels,RC):
@@ -38,7 +36,8 @@ class Forest(object):
         
 
     def evaluate(self, test):
-        return [ self.predict(x) for x in test]
+        #print(test)
+        return [self.predict(x) for x in test] #for each datapoint
 
 
 """    

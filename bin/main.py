@@ -17,8 +17,8 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-#NAMES = ['ECOLI','GLASS','LIVER','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
-NAMES = ['GLASS']
+#NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+NAMES = ['VOTES']
 
 # - VERBOSE
 # 0 : no additional output
@@ -28,7 +28,7 @@ VERBOSE = 2
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 10
+K = 3
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -41,7 +41,7 @@ noise_rate = .05
 DEPTH = -1
 
 # Number trees
-NUMBER_TREES = 100
+NUMBER_TREES = 10
 
 # ALGORITHM
 # AB : AdaBoost
@@ -130,6 +130,7 @@ for NAME in NAMES:
     F = [1,int(log(M+1)/log(2))] 
     for k in range(K):
         X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
+        #print(y_train)
         error = [] 
         for f in F:
             if ALGORITHM == "AB":
@@ -138,7 +139,7 @@ for NAME in NAMES:
                 N_ESTIMATORS = 50 # Defined in the paper
                 # Run AdaBoost !!!!
                 y_out = AdaBoost(X_train, y_train, X_test, f, N_ESTIMATORS)
-    #            error = float(np.count_nonzero(y_out-y_test))/N_test
+                #error = float(np.count_nonzero(y_out-y_test))/N_test
 
             elif ALGORITHM == "RF":
                 # RUN RANDOM FOREST!!!
@@ -157,7 +158,10 @@ for NAME in NAMES:
                 y_out = ForestIB(X_train, y_train, X_test, f, NUMBER_TREES)
             
             # Prediction error
+            #print('y_out',y_out)
+            #print('y_test',y_test)
             error.append(np.count_nonzero(y_out-y_test)/N_test)   
+        
         counts.append(min(error))
         #print(error)
         #print(min(error))
