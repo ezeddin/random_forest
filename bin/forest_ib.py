@@ -73,12 +73,12 @@ class Forest(object):
         
 
 
-datasets = get_datasets()
-X = datasets[1][:,0:-1]
-Y = datasets[1][:,-1]
-n_features = int(np.log2(len(X[0])) + 1)
-print(n_features)
-forest = Forest(n_trees=1,n_features=n_features, max_depth=10)
-forest.build_trees(X,Y, False)
-print("Predicted:", forest.predict(X[1]))
-# print(forest.information_gain(X,Y,2))
+# datasets = get_datasets()
+# X = datasets[1][:,0:-1]
+# Y = datasets[1][:,-1]
+# n_features = int(np.log2(len(X[0])) + 1)
+# print(n_features)
+# forest = Forest(n_trees=1,n_features=n_features, max_depth=10)
+# forest.build_trees(X,Y, False)
+# print("Predicted:", forest.predict(X[1]))
+# # print(forest.information_gain(X,Y,2))

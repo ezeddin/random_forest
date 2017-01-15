@@ -31,9 +31,9 @@ class Tree(object):
     # Split and create sub trees
     def split(self, dataset, labels, features, max_depth, depth=1, min_size=1):
         # Find a good split
-        _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
+        gain_value, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
         # features.remove(self.split_feature)
-        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 0:
+        if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 0 or gain_value <= 0:
             self.last_node(labels)
         else:
             self.left = Tree()

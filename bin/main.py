@@ -18,18 +18,18 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['ECOLI','GLASS','LIVER','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
 # NAMES = 'ALL'
 
 # - VERBOSE
 # 0 : no additional output
 # 1 : some addional output
 # 2 : full output
-VERBOSE = 2
+VERBOSE = 1
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 1
+K = 5
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -47,10 +47,11 @@ NUMBER_TREES = 100
 # ALGORITHM
 # AB : AdaBoost
 # RF : Random Forest-RI
+# RF2 : Random Forest-RI Tree2
 # RC : Random Forest-RC
 # RFIB : In built Random Forest-RI
 # RFDT
-ALGORITHM = "RFDT"
+ALGORITHM = "RF"
 
 
 # Parsing data
@@ -147,7 +148,13 @@ for NAME in NAMES:
                 forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
                 forest.build_trees(X_train,y_train,False)            
                 y_out = forest.evaluate(X_test)
-                
+            
+            elif ALGORITHM == "RF2":
+                # RUN RANDOM FOREST!!!
+                forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
+                forest.build_trees(X_train,y_train,RC=False,tree2=True)            
+                y_out = forest.evaluate(X_test)
+
             elif ALGORITHM == 'RC':
                 # RUN RANDOM FOREST-RC
                 forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)

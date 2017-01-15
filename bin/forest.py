@@ -1,6 +1,7 @@
 from parser import *
 import random
-from Tree import *
+import Tree2
+import Tree
 from create_trainingset import *
 
 class Forest(object):
@@ -24,10 +25,11 @@ class Forest(object):
         #print(max(set(predictions), key=predictions.count))
         return max(set(predictions), key=predictions.count)
 
-    def build_trees(self, dataset, labels,RC):
-        
+    def build_trees(self, dataset, labels, RC, tree2 = False):
         for _ in range(self.n_trees):
-            new_tree = Tree()
+            new_tree = Tree.Tree()
+            if tree2:
+                new_tree = Tree2.Tree()
             if RC == True:
                 new_tree.linear_combination_features(dataset)
                 dataset = new_tree.transform_data(dataset)
@@ -36,7 +38,6 @@ class Forest(object):
             new_tree.split( dataset[subset_idx], labels[subset_idx], features, self.max_depth )
             self.trees.append(new_tree)
         
-
     def evaluate(self, test):
         return [ self.predict(x) for x in test]
 
