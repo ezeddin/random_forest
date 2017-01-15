@@ -14,7 +14,6 @@ class Tree(object):
         self.coefficients = None
         self.indices = None
 
-
     def __str__(self, level=0, side='• '):
         ret = "--"*level+side+repr(self.split_feature)+' : '+ format(self.split_value, '.2f')+ "\n"
         for side, child in [('[L] ',self.left), ('[R] ',self.right)]:
@@ -43,6 +42,8 @@ class Tree(object):
 
     def last_node(self, labels):
         labels = list(labels)
+        #print('lables', labels)
+        #print('max labels', max(set(labels), key=labels.count))
         self.node = max(set(labels), key=labels.count)
 
     def get_split(self, dataset, labels, features):
@@ -50,18 +51,18 @@ class Tree(object):
         for row in dataset:
             for feature in features:                   
                 value = row[feature]
-                #branches = (dataset[:,feature]<value, dataset[:,feature]>=value) 
-                # branches = (dataset[:,feature] != value, dataset[:,feature] == value)                 
                 if self.is_int(value):
                     branches = (dataset[:,feature] != value, dataset[:,feature] == value)
                 else:
                     branches = (((dataset[:,feature] > value*(1+eps)) & (dataset[:,feature] < value*(1-eps))), ((dataset[:,feature] <= value*(1+eps)) & (dataset[:,feature] >= value*(1-eps))))
+
                 gini_value = self.gini(branches, labels)
                 gini_list.append((gini_value,feature,value,branches))
         return max(gini_list, key=lambda x: x[0])
 
     def predict(self, x):
         if self.left == None or self.right == None:
+            #print(self.node)
             return self.node
         else:
             if self.is_int(self.split_value):
@@ -95,7 +96,6 @@ class Tree(object):
         return gini
 
     def transform_data(self,dataset):
-
         new_dataset = np.zeros(dataset.shape)
         #print(dataset.shape)
         for col in range(dataset.shape[1]):
