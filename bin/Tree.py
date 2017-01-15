@@ -14,7 +14,6 @@ class Tree(object):
         self.coefficients = None
         self.indices = None
 
-
     def __str__(self, level=0, side='• '):
         ret = "--"*level+side+repr(self.split_feature)+' : '+ format(self.split_value, '.2f')+ "\n"
         for side, child in [('[L] ',self.left), ('[R] ',self.right)]:
@@ -34,11 +33,6 @@ class Tree(object):
         _, self.split_feature, self.split_value, (left, right) = self.get_split(dataset, labels, features)
         # features.remove(self.split_feature)
         if sum(left) == 0 or sum(right) == 0 or depth >= max_depth or len(features) == 0:
-            #print('last labels',labels)
-            #print('left', sum(left))
-            #print('right', sum(right))
-            #print('depth', depth, max_depth)
-            #print('feature', features)
             self.last_node(labels)
         else:
             self.left = Tree()
@@ -57,7 +51,7 @@ class Tree(object):
         for row in dataset:
             for feature in features:                   
                 value = row[feature]
-        if self.is_int(value):
+                if self.is_int(value):
                     branches = (dataset[:,feature] != value, dataset[:,feature] == value)
                 else:
                     branches = (((dataset[:,feature] > value*(1+eps)) & (dataset[:,feature] < value*(1-eps))), ((dataset[:,feature] <= value*(1+eps)) & (dataset[:,feature] >= value*(1-eps))))
