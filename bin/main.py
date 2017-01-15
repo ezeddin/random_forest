@@ -6,6 +6,7 @@ from math import log
 from forest import *
 from create_trainingset import *
 from AdaBoost import *
+import forest_ib
 # from disturb_output import disturb_output
 
 import parser
@@ -19,6 +20,8 @@ import parser
 # List of data sets or 'ALL' to select all
 #NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
 NAMES = ['VOTES']
+#NAMES = ['ECOLI','GLASS','LIVER','Waveform','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+# NAMES = 'ALL'
 
 # - VERBOSE
 # 0 : no additional output
@@ -28,6 +31,7 @@ VERBOSE = 2
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
+
 K = 3
 
 # - DISTURB_OUTPUT
@@ -48,7 +52,8 @@ NUMBER_TREES = 10
 # RF : Random Forest-RI
 # RC : Random Forest-RC
 # RFIB : In built Random Forest-RI
-ALGORITHM = "RF"
+# RFDT
+ALGORITHM = "RFDT"
 
 
 # Parsing data
@@ -156,7 +161,13 @@ for NAME in NAMES:
 
             elif ALGORITHM == 'RFIB':
                 y_out = ForestIB(X_train, y_train, X_test, f, NUMBER_TREES)
-            
+
+            elif ALGORITHM == "RFDT":
+                # RUN RANDOM FOREST!!!
+                forest = forest_ib.Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
+                forest.build_trees(X_train,y_train,False)            
+                y_out = forest.evaluate(X_test)
+
             # Prediction error
             #print('y_out',y_out)
             #print('y_test',y_test)
