@@ -3,7 +3,7 @@ import random
 from Tree import *
 from create_trainingset import *
 from sklearn.tree import DecisionTreeClassifier
-
+import Tree2
 class Forest(object):
     def __init__(self, n_trees, n_features, subset_ratio=0.66, max_depth=2):
         self.n_trees = n_trees
@@ -27,12 +27,18 @@ class Forest(object):
 
     def build_trees(self, dataset, labels,RC):
         for _ in range(self.n_trees):
-            new_tree = DecisionTreeClassifier(splitter="random", max_features=self.n_features, max_depth=self.max_depth)
+            dataset_new = dataset
+            n_features_new = self.n_features
+
             if RC == True:
-                new_tree.linear_combination_features(dataset)
-                dataset = new_tree.transform_data(dataset)
-            subset_idx = self.subset_dataset(dataset)
-            new_tree.fit(dataset[subset_idx], labels[subset_idx])
+                tree2 = Tree2.Tree()    
+                features = tree2.linear_combination_features(dataset,self.n_features)
+                dataset_new = tree2.transform_data(dataset)
+                n_features_new = len(features)
+
+            new_tree = DecisionTreeClassifier(splitter="random", max_features=n_features_new, max_depth=n_features_new)
+            subset_idx = self.subset_dataset(dataset_new)
+            new_tree.fit(dataset_new[subset_idx], labels[subset_idx])
             self.trees.append(new_tree)
 
     def evaluate(self, test):
@@ -72,13 +78,16 @@ class Forest(object):
 
         
 
+    
+
 
 # datasets = get_datasets()
 # X = datasets[1][:,0:-1]
 # Y = datasets[1][:,-1]
 # n_features = int(np.log2(len(X[0])) + 1)
 # print(n_features)
-# forest = Forest(n_trees=1,n_features=n_features, max_depth=10)
-# forest.build_trees(X,Y, False)
-# print("Predicted:", forest.predict(X[1]))
+# forest = Forest(n_trees=10,n_features=n_features, max_depth=10)
+# forest.build_trees(X,Y)
+# print("Tree 0:\n",forest.trees[0])
+# print("Predicted:", forest.predict(X[107]), "Actual:", Y[107])
 # # print(forest.information_gain(X,Y,2))

@@ -18,9 +18,11 @@ class Forest(object):
         n_subset_samples =  int(n_dataset_samples * self.subset_ratio)
         return np.random.randint(n_dataset_samples, size=n_subset_samples)
 
-    def predict(self, x):
-        predictions = [tree.predict(x) for tree in self.trees]
-        #print(predictions)
+    def predict(self, x, RC):
+        if RC:
+            predictions = [tree.predictRC(x) for tree in self.trees]
+        else:
+            predictions = [tree.predict(x) for tree in self.trees]
         return max(set(predictions), key=predictions.count)
 
     def build_trees(self, dataset, labels, RC, tree2 = False):
@@ -28,7 +30,6 @@ class Forest(object):
             new_tree = Tree.Tree()
             if tree2:
                 new_tree = Tree2.Tree()
-
             if RC == True:
                 #print(dataset.shape)
                 features = new_tree.linear_combination_features(dataset,self.n_features)
@@ -37,12 +38,11 @@ class Forest(object):
                 #print(features)
             else:
                 features = set(np.random.choice(dataset_new.shape[1], self.n_features, replace=False))
-
                 
             subset_idx = self.subset_dataset(dataset_new)
-            new_tree.split( dataset[subset_idx], labels[subset_idx], features, self.max_depth )
+            new_tree.split( dataset_new[subset_idx], labels[subset_idx], features, self.max_depth )
             self.trees.append(new_tree)
         
-    def evaluate(self, test):
+    def evaluate(self, test, RC=False):
         #print(test)
-        return [self.predict(x) for x in test] #for each datapoint
+        return [self.predict(x, RC) for x in test] #for each datapoint

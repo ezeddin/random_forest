@@ -41,7 +41,6 @@ class Tree(object):
                     self.childs[value] = Tree()
                     self.childs[value].split(dataset[dataset[:,self.split_feature]==value], labels[dataset[:,self.split_feature]==value], set(features), max_depth, depth+1)
 
-
     def last_node(self, labels):
         labels = list(labels)
         self.node = max(set(labels), key=labels.count)
@@ -60,6 +59,15 @@ class Tree(object):
         else:
             nearest_split_value = min(list(self.childs.keys()), key=lambda z:abs(z-x[self.split_feature]))
             return self.childs[nearest_split_value].predict(x)
+
+    def predictRC(self, x):
+        if self.node != None:
+            return self.node
+        else:
+            x_rc = sum(x[self.indices[self.split_feature]] * self.coefficients[self.split_feature])
+            nearest_split_value = min(list(self.childs.keys()), key=lambda z:abs(z-x_rc))
+            return self.childs[nearest_split_value].predict(x)
+
 
     # Gini impurity
     def gini(self, labels):

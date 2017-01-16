@@ -18,18 +18,18 @@ import parser
 
 # - NAMES
 # List of data sets or 'ALL' to select all
-NAMES = ['LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
-#NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+# NAMES = ['LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
+NAMES = ['ECOLI','GLASS','LIVER','IONOSPHERE','DIABETES','SONAR','BREAST_CANCER','VOTES','VEHICLE']
 
 # - VERBOSE
 # 0 : no additional output
 # 1 : some addional output
 # 2 : full output
-VERBOSE = 1
+VERBOSE = 2
 
 # - K
 # Number of training sessions across the error is averaged (In paper K = 100)
-K = 5
+K = 100
 
 # - DISTURB_OUTPUT
 DISTURB_OUTPUT = False
@@ -42,7 +42,7 @@ noise_rate = .05
 DEPTH = -1
 
 # Number trees
-NUMBER_TREES = 50
+NUMBER_TREES = 100
 
 # ALGORITHM
 # AB : AdaBoost
@@ -50,7 +50,8 @@ NUMBER_TREES = 50
 # RF2 : Random Forest-RI Tree2
 # RC : Random Forest-RC
 # RFIB : In built Random Forest-RI
-# RFDT
+# RFDT:  Random Forest-RI with in built Decision Tree
+# RFDT:  Random Forest-RC with in built Decision Tree
 ALGORITHM = "RC"
 
 
@@ -130,7 +131,8 @@ for NAME in NAMES:
 
 
     counts = []
-    F = [2,8]#[1,int(log(M+1)/log(2))] 
+    # F = [1, int(log(M+1)/log(2))] 
+    F = [2,8]
     for k in range(K):
         X_test,y_test,X_train,y_train = create_trainingset(X,y,N,N_test)
         #print(y_train)
@@ -160,8 +162,8 @@ for NAME in NAMES:
                 # RUN RANDOM FOREST-RC
                 forest = Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
                 forest.build_trees(X_train,y_train,RC=True,tree2=True)            
-                y_out = forest.evaluate(X_test)
-                #error = forest.build_trees(X,y,N_test,True)            
+                y_out = forest.evaluate(X_test,RC=True)
+                #error = forest.build_trees(X,y,N_test,True)
 
             elif ALGORITHM == 'RFIB':
                 y_out = ForestIB(X_train, y_train, X_test, f, NUMBER_TREES)
@@ -172,6 +174,14 @@ for NAME in NAMES:
                 forest.build_trees(X_train,y_train,False)            
                 y_out = forest.evaluate(X_test)
 
+            elif ALGORITHM == "RFDTC":
+                if X_train.shape[1] < f:
+                    break
+
+                # RUN RANDOM FOREST!!!
+                forest = forest_ib.Forest(n_trees=NUMBER_TREES,n_features=f, max_depth=f)
+                forest.build_trees(X_train,y_train,RC=True)            
+                y_out = forest.evaluate(X_test)
             # Prediction error
             #print('y_out',y_out)
             #print('y_test',y_test)
